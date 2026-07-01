@@ -19,71 +19,56 @@
 
 ### Step 0：自动更新检查
 
-每次调用 `/MM-KR` 时，**必须先执行更新检查**，再做任何其他操作：
+每次调用 `/MM-KR` 时，**必须先执行更新检查**，再做任何其他操作。
+
+**检查流程**：
 
 1. 读取本地版本文件 `MM-KR-参考/version.json`，获取 `version` 字段
-2. 用 `curl` 静默获取远程版本：
+2. 用 `curl` 静默获取远程版本（根目录，纯ASCII路径）：
    ```bash
    curl -sf --connect-timeout 5 "https://raw.githubusercontent.com/oNa2O2o/MM-KR-Skill/main/version.json"
    ```
-3. 比较本地和远程的 `version` 字段（语义化版本比较）
+3. 比较本地和远程的 `version` 字段（语义化版本：major.minor.patch）
 4. **三种结果**：
-   - 远程获取失败或超时 → 静默跳过，输出 `[更新检查] 无法连接远程仓库，使用本地版本 vX.X.X`，继续流程
-   - 版本相同 → 静默跳过，输出 `[更新检查] 当前已是最新版本 vX.X.X`，继续流程
-   - 远程版本更高 → **暂停流程**，向用户展示：
-     ```
-     ⚡ MM-KR 有新版本可用
-     当前版本：vX.X.X
-     最新版本：vY.Y.Y
-     更新内容：[远程changelog字段]
-     
-     是否立即更新？（更新/跳过）
-     ```
-5. 用户选择"更新" → 执行更新流程（见下方）
-6. 用户选择"跳过" → 继续使用当前版本
+   - 远程获取失败或超时 → 静默跳过，输出 `[更新检查] 无法连接，使用本地 vX.X.X`，继续流程
+   - 版本相同 → 输出 `[更新检查] 已是最新 vX.X.X`，继续流程
+   - 远程版本更高 → **暂停**，向用户展示更新信息和 changelog，询问"更新/跳过"
+5. 用户选择"跳过" → 继续当前版本
 
-### 更新执行流程
-
-用户确认更新后，执行以下步骤：
+**更新执行流程**（用户确认更新后）：
 
 ```bash
-# 1. 备份当前版本到临时目录
+# 定位 skill 目录（.claude/commands 所在绝对路径）
+SKILL_DIR="<自动检测>"
+
+# 1. 备份
 BACKUP_DIR=$(mktemp -d)
-SKILL_DIR="<.claude/commands所在绝对路径>"
 cp -r "$SKILL_DIR/MM-KR.md" "$SKILL_DIR/MM-KR-参考" "$BACKUP_DIR/"
 
-# 2. 从GitHub下载最新文件
-REPO_RAW="https://raw.githubusercontent.com/oNa2O2o/MM-KR-Skill/main"
-FILES=(
-  "MM-KR.md"
-  "MM-KR-参考/version.json"
-  "MM-KR-参考/画风约束.md"
-  "MM-KR-参考/情绪导演模板.md"
-  "MM-KR-参考/huggingfield模板.md"
-  "MM-KR-参考/api2img-setup.md"
-  "MM-KR-参考/deepwhite-编剧引擎.md"
-  "MM-KR-参考/deepwhite-图片提示词模板.md"
-  "MM-KR-参考/deepwhite-分镜提示词模板.md"
-)
-FAIL=0
-for f in "${FILES[@]}"; do
-  mkdir -p "$SKILL_DIR/$(dirname "$f")"
-  curl -sf "$REPO_RAW/$f" -o "$SKILL_DIR/$f" || FAIL=1
-done
+# 2. 下载仓库压缩包并解压覆盖
+curl -sL "https://github.com/oNa2O2o/MM-KR-Skill/archive/refs/heads/main.tar.gz" -o /tmp/mm-kr-update.tar.gz
+EXTRACT_DIR=$(mktemp -d)
+tar xzf /tmp/mm-kr-update.tar.gz -C "$EXTRACT_DIR"
+SRC="$EXTRACT_DIR/MM-KR-Skill-main"
 
-# 3. 验证更新结果
-if [ $FAIL -eq 1 ]; then
-  echo "部分文件下载失败，回滚到备份版本"
-  cp -r "$BACKUP_DIR/MM-KR.md" "$BACKUP_DIR/MM-KR-参考" "$SKILL_DIR/"
-else
-  echo "✅ 更新成功"
-  # 读取新版本号确认
+# 3. 覆盖本地文件
+if [ -f "$SRC/MM-KR.md" ]; then
+  cp "$SRC/MM-KR.md" "$SKILL_DIR/MM-KR.md"
+  cp -r "$SRC/MM-KR-参考/"* "$SKILL_DIR/MM-KR-参考/"
+  echo "更新成功"
   cat "$SKILL_DIR/MM-KR-参考/version.json"
+else
+  # 解压失败，回滚
+  echo "更新失败，回滚"
+  cp -r "$BACKUP_DIR/MM-KR.md" "$BACKUP_DIR/MM-KR-参考" "$SKILL_DIR/"
 fi
-rm -rf "$BACKUP_DIR"
+
+# 4. 清理
+rm -rf "$BACKUP_DIR" "$EXTRACT_DIR" /tmp/mm-kr-update.tar.gz
 ```
 
-更新完成后输出：`[更新完成] MM-KR 已更新到 vY.Y.Y`，然后继续正常流程。
+更新完成后输出 `[更新完成] MM-KR 已更新到 vY.Y.Y`，然后继续正常流程。
+更新失败时自动回滚，输出 `[更新失败] 已回滚到 vX.X.X`，继续流程。
 
 ### Step 1：环境检测
 
