@@ -1,0 +1,71 @@
+{
+  "designer": "",
+  "region": "",
+  "language": "",
+  "art_style": "",
+  "art_style_en": "",
+  "aesthetic_keywords": [],
+  "aesthetic_keywords_en": [],
+  "speech_rate": "",
+  "content_direction": "",
+  "target_audience": "",
+  "presets": {
+    "KR": {
+      "language": "韩语",
+      "art_style": "韩式厚涂",
+      "art_style_en": "Korean thick-painting style",
+      "aesthetic_keywords": ["暗朦调", "泛朦", "低饱和", "反射", "质感", "泛光模糊晕染"],
+      "aesthetic_keywords_en": ["dark dreamy atmospheric tone", "soft haze glow", "low saturation", "reflections", "textured rendering", "bloom blur blending"],
+      "speech_rate": "6-8",
+      "ui_labels": {
+        "scene_tag": "{N}일차 - {地点}",
+        "affinity": "호감도 {X}",
+        "scene_tag_zh": "第{N}天 - {地点}",
+        "affinity_zh": "好感度 {X}"
+      }
+    },
+    "JP": {
+      "language": "日语",
+      "art_style": "日系厚涂",
+      "art_style_en": "Japanese thick-painting / semi-realistic anime style",
+      "aesthetic_keywords": ["柔光", "高饱和暖色", "透明感", "逆光晕染", "空气感"],
+      "aesthetic_keywords_en": ["soft glow", "warm saturated tones", "translucency", "backlit bloom", "atmospheric haze"],
+      "speech_rate": "7-9",
+      "ui_labels": {
+        "scene_tag": "{N}日目 - {地点}",
+        "affinity": "好感度 {X}",
+        "scene_tag_zh": "第{N}天 - {地点}",
+        "affinity_zh": "好感度 {X}"
+      }
+    },
+    "CN": {
+      "language": "中文",
+      "art_style": "新国潮厚涂",
+      "art_style_en": "Modern Chinese thick-painting style",
+      "aesthetic_keywords": ["水墨晕染", "低饱和古韵", "雾气感", "质感肌理", "光影柔和"],
+      "aesthetic_keywords_en": ["ink wash blending", "muted classical tones", "misty atmosphere", "textured surface", "soft lighting"],
+      "speech_rate": "4-6",
+      "ui_labels": {
+        "scene_tag": "第{N}天 - {地点}",
+        "affinity": "好感度 {X}",
+        "scene_tag_zh": "第{N}天 - {地点}",
+        "affinity_zh": "好感度 {X}"
+      }
+    },
+    "EN": {
+      "language": "英语",
+      "art_style": "Western digital painting",
+      "art_style_en": "Western digital painting style",
+      "aesthetic_keywords": ["cinematic lighting", "dramatic contrast", "detailed textures", "atmospheric depth"],
+      "aesthetic_keywords_en": ["cinematic lighting", "dramatic contrast", "detailed textures", "atmospheric depth"],
+      "speech_rate": "3-5",
+      "ui_labels": {
+        "scene_tag": "Day {N} - {地点}",
+        "affinity": "Affinity {X}",
+        "scene_tag_zh": "第{N}天 - {地点}",
+        "affinity_zh": "好感度 {X}"
+      }
+    }
+  },
+  "cases": []
+}
