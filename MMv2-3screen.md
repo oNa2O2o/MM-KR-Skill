@@ -26,7 +26,7 @@
 1. 读取本地 `MMv2-3screen-参考/version.json` 的 `version` 字段
 2. 获取远程版本：
    ```bash
-   curl -sf --connect-timeout 5 "https://raw.githubusercontent.com/oNa2O2o/MM-KR-Skill/main/version.json"
+   curl -sf --connect-timeout 5 "https://raw.githubusercontent.com/oNa2O2o/MMv2-3screen/main/version.json"
    ```
 3. 比较版本（语义化：major.minor.patch）：
    - 获取失败 → `[更新检查] 无法连接，使用本地 vX.X.X`，继续
@@ -37,10 +37,10 @@
    SKILL_DIR="<.claude/commands绝对路径>"
    BACKUP_DIR=$(mktemp -d)
    cp -r "$SKILL_DIR/MMv2-3screen.md" "$SKILL_DIR/MMv2-3screen-参考" "$BACKUP_DIR/"
-   curl -sL "https://github.com/oNa2O2o/MM-KR-Skill/archive/refs/heads/main.tar.gz" -o /tmp/mmv2-update.tar.gz
+   curl -sL "https://github.com/oNa2O2o/MMv2-3screen/archive/refs/heads/main.tar.gz" -o /tmp/mmv2-update.tar.gz
    EXTRACT_DIR=$(mktemp -d)
    tar xzf /tmp/mmv2-update.tar.gz -C "$EXTRACT_DIR"
-   SRC="$EXTRACT_DIR/MM-KR-Skill-main"
+   SRC="$EXTRACT_DIR/MMv2-3screen-main"
    if [ -f "$SRC/MMv2-3screen.md" ]; then
      cp "$SRC/MMv2-3screen.md" "$SKILL_DIR/"
      cp -r "$SRC/MMv2-3screen-参考/"* "$SKILL_DIR/MMv2-3screen-参考/"
