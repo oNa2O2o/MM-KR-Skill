@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
-  "updated": "2026-07-01",
-  "changelog": "v2.0.0 重命名MMv2-3screen，新增用户档案系统（地区/语言/画风/案例库），支持KR/JP/CN/EN多地区适配，档案独立于Skill更新"
+  "version": "2.1.0",
+  "updated": "2026-07-03",
+  "changelog": "v2.1.0 执行偏差修复：文件结构平铺（不建子文件夹）、Phase重编号（UI改附录可选）、POV静默规则前置、api2img改curl、参考文件去KR硬编码改{profile}、绿幕提示词增强、CTA标准化为Phase 5"
 }

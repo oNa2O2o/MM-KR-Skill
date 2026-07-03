@@ -30,56 +30,58 @@
 
 用于人设图、分镜图、UI提取等所有图片生成。
 
-```javascript
-const fs = require('fs'), path = require('path');
-const cd = path.join(require('os').homedir(), '.api2img');
-const cfg = JSON.parse(fs.readFileSync(path.join(cd,'config.json'),'utf-8'));
-const sec = JSON.parse(fs.readFileSync(path.join(cd,'secret.json'),'utf-8'));
-const apiUrl = cfg.baseUrl.replace(/\/+$/,'').replace(/\/v1$/,'') + '/v1/images/edits';
+**重要**：Node.js fetch 在此 API 上会超时（大 base64 响应约 1.7MB），必须使用 curl 发请求。
 
-async function editImage(imagePath, prompt, outPath, size, retries=2) {
-  for (let i = 0; i <= retries; i++) {
-    const imageBuffer = fs.readFileSync(imagePath);
-    const formData = new FormData();
-    formData.append('image', new Blob([imageBuffer], {type:'image/png'}), 'image.png');
-    formData.append('prompt', prompt);
-    formData.append('model', 'gpt-image-2');
-    formData.append('n', '1');
-    formData.append('size', size || '1024x1536');
-    formData.append('quality', 'high');
-    const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), 240000);
-    try {
-      const r = await fetch(apiUrl, {
-        method: 'POST',
-        signal: controller.signal,
-        headers: {'Authorization': 'Bearer ' + sec.apiKey},
-        body: formData
-      });
-      clearTimeout(t);
-      const j = await r.json();
-      if (j.data && j.data[0]) {
-        const item = j.data[0];
-        fs.mkdirSync(path.dirname(outPath), {recursive: true});
-        if (item.b64_json) {
-          fs.writeFileSync(outPath, Buffer.from(item.b64_json, 'base64'));
-        } else if (item.url) {
-          const ir = await fetch(item.url);
-          fs.writeFileSync(outPath, Buffer.from(await ir.arrayBuffer()));
-        }
-        console.log('OK:', path.basename(outPath));
-        return;
-      } else {
-        console.error('ERR attempt', i, JSON.stringify(j).substring(0, 300));
-      }
-    } catch (e) {
-      clearTimeout(t);
-      console.error('ERR attempt', i, ':', e.message);
-    }
-  }
-  console.error('FAILED after retries');
+### bash + curl 模板
+
+```bash
+# 读取配置
+CONFIG_DIR="$HOME/.api2img"
+BASE_URL=$(node -e "const c=require('$CONFIG_DIR/config.json');console.log(c.baseUrl.replace(/\/+$/,'').replace(/\/v1$/,''))")
+API_KEY=$(node -e "console.log(require('$CONFIG_DIR/secret.json').apiKey)")
+API_URL="$BASE_URL/v1/images/edits"
+
+# 参数：IMAGE_PATH, PROMPT_FILE, OUT_PATH, SIZE
+IMAGE_PATH="$1"
+PROMPT_FILE="$2"  # 提示词写入临时文件，避免 heredoc 转义问题
+OUT_PATH="$3"
+SIZE="${4:-1024x1536}"
+
+# Windows 兼容临时目录
+TMPDIR=$(cygpath -m "$TEMP" 2>/dev/null || echo "/tmp")
+RESP_FILE="$TMPDIR/api2img_resp_$$.json"
+
+# 发送请求（curl，超时 300s）
+curl -s --max-time 300 \
+  -H "Authorization: Bearer $API_KEY" \
+  -F "image=@$IMAGE_PATH" \
+  -F "prompt=<$PROMPT_FILE" \
+  -F "model=gpt-image-2" \
+  -F "n=1" \
+  -F "size=$SIZE" \
+  -F "quality=high" \
+  "$API_URL" > "$RESP_FILE"
+
+# 解码 base64 并保存
+node -e "
+const fs=require('fs');
+const j=JSON.parse(fs.readFileSync('$RESP_FILE','utf-8'));
+if(j.data && j.data[0] && j.data[0].b64_json){
+  fs.writeFileSync('$OUT_PATH',Buffer.from(j.data[0].b64_json,'base64'));
+  console.log('OK:','$(basename "$OUT_PATH")');
+}else{
+  console.error('ERR:',JSON.stringify(j).substring(0,300));
+  process.exit(1);
 }
+"
+rm -f "$RESP_FILE"
 ```
+
+### 注意事项
+- 提示词先写入临时文件再用 `-F "prompt=<file"` 传入，避免 shell 转义问题
+- Windows 上用 `cygpath -m "$TEMP"` 获取 Node.js 和 bash 都能访问的路径
+- curl 超时设 300s，足够处理 4K 图片生成
+- 不要用 Node.js fetch — 此 API 返回大 base64 JSON 会导致 fetch 超时
 
 ## 常用尺寸
 | 用途 | size参数 | 说明 |

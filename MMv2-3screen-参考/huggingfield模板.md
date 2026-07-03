@@ -15,7 +15,7 @@ ZH ≤1800字符
 
 ### Style & Mood / 风格与氛围
 调色板、光影、镜头、氛围。不可省略。
-韩式厚涂画风，暗朦调，低饱和，泛朦柔光，泛光模糊晕染。
+画风以参考图为准，用 `{profile.art_style}` + `{profile.aesthetic_keywords}` 描述。
 
 ### Dynamic Description / 动态描述
 逐镜头散文描述。镜头运动+角色动作。现在时态。
@@ -26,13 +26,13 @@ ZH ≤1800字符
 场景、道具、环境细节。为Dynamic中引用的一切建立基础。
 
 ### Audio / 音频（仅对话场景）
-韩语台词原文（不翻译），音效/环境音描述。
+`{profile.language}` 台词原文（不翻译），音效/环境音描述。
 
 ## 核心规则
 - 输出纯JSON，不加markdown围栏或解释
 - 中文为母语导演笔记风格，不是翻译
 - 图片引用：`<<<image_1>>>` `<<<image_2>>>`
-- 台词保持韩语原文，EN和ZH提示词中都用韩语
+- 台词保持 `{profile.language}` 原文，EN和ZH提示词中都用原语言
 - 禁止年龄标记词（boy/girl/child/少年/少女等）
 - 角色用功能标签描述（the figure / 身影）
 - 微表情描述为物理动作（jaw clenches / 下颌咬紧）
@@ -47,4 +47,4 @@ ZH ≤1800字符
 
 ## 时长
 在Style & Mood段末标注：Duration: Xs
-时长 = 韩语台词音节数 ÷ 6~8 + 动作缓冲，目标8-12秒，上限15秒
+时长 = `{profile.language}` 台词音节数 ÷ `{profile.speech_rate}` + 动作缓冲，目标8-12秒，上限15秒
