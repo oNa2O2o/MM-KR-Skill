@@ -9,6 +9,13 @@
   "speech_rate": "",
   "content_direction": "",
   "target_audience": "",
+  "character_preferences": {
+    "hair_color": "",
+    "hair_color_reason": "",
+    "outfit_color": "",
+    "body_proportion": "",
+    "body_proportion_reason": ""
+  },
   "presets": {
     "KR": {
       "language": "韩语",
@@ -22,6 +29,13 @@
         "affinity": "호감도 {X}",
         "scene_tag_zh": "第{N}天 - {地点}",
         "affinity_zh": "好感度 {X}"
+      },
+      "character_preferences": {
+        "hair_color": "亮色优先（铂金/奶金/樱粉/蜜橙/薰衣草/白发等）",
+        "hair_color_reason": "韩国市场亮色头发素材转化率显著更高",
+        "outfit_color": "亮色/浅色系优先，避免暗黑深色系主导",
+        "body_proportion": "9头身模特比例，禁止Q版/大头娃娃",
+        "body_proportion_reason": "韩国乙游/恋爱题材主流审美"
       }
     },
     "JP": {
@@ -36,6 +50,13 @@
         "affinity": "好感度 {X}",
         "scene_tag_zh": "第{N}天 - {地点}",
         "affinity_zh": "好感度 {X}"
+      },
+      "character_preferences": {
+        "hair_color": "自然色系优先（黑/棕/栗/浅金），角色差异化时可用粉/蓝挑染",
+        "hair_color_reason": "日本市场偏好写实系发色，亮色作点缀",
+        "outfit_color": "暖色调 + 校服/制服元素，饱和度中等",
+        "body_proportion": "7.5-8头身写实比例",
+        "body_proportion_reason": "日系半写实动漫审美"
       }
     },
     "CN": {
@@ -50,6 +71,13 @@
         "affinity": "好感度 {X}",
         "scene_tag_zh": "第{N}天 - {地点}",
         "affinity_zh": "好感度 {X}"
+      },
+      "character_preferences": {
+        "hair_color": "黑发/深棕为主，仙侠/古风可用银/白/银灰",
+        "hair_color_reason": "国潮/古风审美偏好深色系，仙侠除外",
+        "outfit_color": "低饱和古韵配色（青/朱/黛/黄）+ 大量留白",
+        "body_proportion": "8头身修长比例",
+        "body_proportion_reason": "国潮古风人物审美"
       }
     },
     "EN": {
@@ -64,6 +92,13 @@
         "affinity": "Affinity {X}",
         "scene_tag_zh": "第{N}天 - {地点}",
         "affinity_zh": "好感度 {X}"
+      },
+      "character_preferences": {
+        "hair_color": "多元发色（金/棕/红/黑/彩虹染），种族多样化",
+        "hair_color_reason": "英语区市场重视 diversity 与角色辨识度",
+        "outfit_color": "对比度高，戏剧化配色",
+        "body_proportion": "8头身电影质感比例",
+        "body_proportion_reason": "西方电影级插画审美"
       }
     }
   },

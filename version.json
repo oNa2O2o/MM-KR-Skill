@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
-  "updated": "2026-07-03",
-  "changelog": "v2.1.0 执行偏差修复：文件结构平铺（不建子文件夹）、Phase重编号（UI改附录可选）、POV静默规则前置、api2img改curl、参考文件去KR硬编码改{profile}、绿幕提示词增强、CTA标准化为Phase 5"
+  "version": "2.3.0",
+  "updated": "2026-07-08",
+  "changelog": "v2.3.0 一致性重构：(1) 交换Phase 3&4编号，Phase 3=Seedance提示词、Phase 4=分镜图，编号即执行顺序；(2) 删除固定规则区，所有规则就近归位到对应Phase，避免维护漂移；(3) 激活character_preferences字段，Phase 0档案摘要展示+Phase 2人设图提示词模板自动注入；(4) 选项字数改为语义化描述'2-4词一眼扫完'；(5) Phase 7新增规则归位表，Phase 7复盘时按类型归位到Phase内，禁止重复添加；(6) profile-template.json 4个region预设全部补齐character_preferences默认值。"
 }
