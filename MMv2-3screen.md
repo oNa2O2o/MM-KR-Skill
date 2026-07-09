@@ -34,12 +34,16 @@
    - 远程更高 → 展示 changelog，询问"更新/跳过"
 4. 更新流程：
    ```bash
-   SKILL_DIR="<.claude/commands绝对路径>"
-   BACKUP_DIR=$(mktemp -d)
+   # Windows 兼容：使用 TEMP 环境变量替代 /tmp 和 mktemp
+   TMPDIR_WIN=$(cygpath -m "$TEMP" 2>/dev/null || echo "$TEMP")
+   SKILL_DIR=$(cygpath -m "$(cd "$(dirname "$0")/../.claude/commands" 2>/dev/null && pwd)" 2>/dev/null)
+   # 如果 SKILL_DIR 解析失败，由调用方（Claude）直接填入 .claude/commands 的绝对路径
+   BACKUP_DIR="$TMPDIR_WIN/mmv2-backup-$$"
+   EXTRACT_DIR="$TMPDIR_WIN/mmv2-extract-$$"
+   mkdir -p "$BACKUP_DIR" "$EXTRACT_DIR"
    cp -r "$SKILL_DIR/MMv2-3screen.md" "$SKILL_DIR/MMv2-3screen-参考" "$BACKUP_DIR/"
-   curl -sL "https://github.com/oNa2O2o/MMv2-3screen/archive/refs/heads/main.tar.gz" -o /tmp/mmv2-update.tar.gz
-   EXTRACT_DIR=$(mktemp -d)
-   tar xzf /tmp/mmv2-update.tar.gz -C "$EXTRACT_DIR"
+   curl -sL "https://github.com/oNa2O2o/MMv2-3screen/archive/refs/heads/main.tar.gz" -o "$TMPDIR_WIN/mmv2-update.tar.gz"
+   tar xzf "$TMPDIR_WIN/mmv2-update.tar.gz" -C "$EXTRACT_DIR"
    SRC="$EXTRACT_DIR/MMv2-3screen-main"
    if [ -f "$SRC/MMv2-3screen.md" ]; then
      cp "$SRC/MMv2-3screen.md" "$SKILL_DIR/"
@@ -48,7 +52,7 @@
    else
      cp -r "$BACKUP_DIR/"* "$SKILL_DIR/"; echo "更新失败，已回滚"
    fi
-   rm -rf "$BACKUP_DIR" "$EXTRACT_DIR" /tmp/mmv2-update.tar.gz
+   rm -rf "$BACKUP_DIR" "$EXTRACT_DIR" "$TMPDIR_WIN/mmv2-update.tar.gz"
    ```
    注意：更新不会覆盖用户档案（`~/.mmv2-3screen/profile.json`），用户个性化数据安全。
 
@@ -107,7 +111,7 @@
 
 ## Phase 1 · 剧情·脚本·标题 ⛔ 用户说"合格"才继续
 
-并列输出两个版本，用户选择或合并使用。
+默认输出版本A（快速简案）。用户说"加DeepWhite编剧版"时额外输出版本B。
 
 ### 版本A · 快速简案（默认）
 
@@ -159,7 +163,11 @@
 - 台词必须直接可表演，不写内心戏、不写心理描写
 - 只写能被摄影机拍到、麦克风听到的内容
 - **主视角（观众）不说话**：所有台词只属于非POV角色，禁止给主视角写对白
+- **台词一句一个信息点**：视频中每句台词展示时间仅1-2秒，过长的台词主动拆分，禁止一句话塞两个信息（如"你是我的男人，不许低头"应拆为两句）
+- **区分台词层级**：标注"氛围"和"角色台词"，方便制作时分层处理（如：配角嘲讽属于氛围音，女主命令属于角色台词）
 - **选项必须极短且必须drama**：选项控制在**2-4词、一眼扫完**的长度（韩语约6韩字内/中文约6字内/英语约3词内），两个选项都要是激烈动作，禁止"重新打开门/直接上锁"这种平淡应对
+- **选项必须围绕当幕核心冲突物/道具**：选项动作必须和当幕的核心冲突直接关联（如欠条→撕欠条、酒杯飞来→避开/挡下），禁止脱离剧情的随机肢体动作（如推墙、搂腰）
+- **选项问题必须是即时画面描述**：描述正在发生的那一秒的物理画面（如"酒杯正朝她飞来"），禁止氛围概括（如"气氛紧张""牌桌将翻"）
 - **结尾动作停在悬念点**：结尾动作只写到"僵持不下/脚步声将至/有人推门"，不能提前把选项动作演完；选项本身才是玩家的抉择时刻，禁止倒果为因
 - **每个问题给3个版本供三选一**：问题文字+选项组一次输出3套，让用户挑最带感的组合
 
@@ -187,7 +195,7 @@
 
 - 一律使用 image edit API（`/v1/images/edits`），以参考图为输入
 - 禁止纯文本生成（`/v1/images/generations`），角色不一致
-- 图片分辨率 4K
+- 人设图分辨率：`1536×1536`（正方形4K级）；分镜图分辨率：`1536×1024`（21:9超宽横版）
 - api2img 代码模板见 `MMv2-3screen-参考/api2img-setup.md`
 - 服装描述必须逐项对照人设图，禁止凭记忆
 - 禁止夸张瞪眼、嘴巴大张等AI味浓的表情
@@ -214,14 +222,14 @@
 
 ### 默认输出：HuggingField中文版
 
-**版本B · HuggingField JSON**（默认）
+**版本A · HuggingField JSON**（默认）
 - 格式见 `MMv2-3screen-参考/huggingfield模板.md`
 - 默认只输出中文提示词部分
 - ZH ≤1800字符
 
 ### 可选版本（用户主动要求时输出）
 
-**版本A · 情绪导演六段式**（用户说"加情绪导演版"时输出）
+**版本B · 情绪导演六段式**（用户说"加情绪导演版"时输出）
 - 格式见 `MMv2-3screen-参考/情绪导演模板.md`
 - 六段：视听限制 / 语言台词 / 运镜手法 / 风格色调与光景 / 角色与场景设定 / 时间轴详细叙事
 - 总字数 ≤1900字，中文
@@ -234,15 +242,15 @@
 
 ### 通用规则（三版共用）
 - 镜头自然晃动模拟手持拍摄
-- 参考图引用：`[图1]` = 人设图（色彩/五官锚定），`[图2]` = 分镜图（动作/构图/POV锚定），版本C中对应 `@image1`/`@image2`
-- 禁止 `@图片1` `@图片2` 格式
+- 参考图引用统一使用 `@image1`（人设图，色彩/五官锚定）和 `@image2`（分镜图，动作/构图/POV锚定），所有版本格式一致
+- 禁止 `@图片1` `@图片2`、`[图1]` `[图2]`、`<<<image_1>>>` `<<<image_2>>>` 等其他格式
 - 禁止引用拟声词音节（Seedance会当对白朗读）
 - 无比喻修辞，纯物理描述
 - 服装描述逐项对照人设图
 - `{profile.language}` 台词保持原文，不翻译
 
 ### 参考图组织
-每个场景准备 `角色名_场景X_图1_人设.png` + `角色名_场景X_图2_分镜.png`，平铺在项目目录中。**[图2] 在 Phase 4 完成分镜生成后回填**。
+每个场景准备 `角色名_场景X_图1_人设.png` + `角色名_场景X_图2_分镜.png`，平铺在项目目录中。图1在 Phase 2 完成后复制，图2在 Phase 4 生成分镜时同步复制。
 
 ---
 
@@ -254,7 +262,7 @@
 
 1. 使用 **image edit API**，人设图作输入
 2. 根据 Phase 3 Seedance 提示词的"动态描述"段落拆分关键帧数量（通常3-6帧）
-3. **分镜格式：横版画幅（1536×1024）内切成多条竖版9:16 strips**，每条对应一个关键帧，条与条之间用细黑线分隔。禁止直接出竖版单张（浪费画幅）。
+3. **分镜格式：21:9超宽横版（1536×1024），关键帧以竖版9:16 strips从左到右排列**，条与条之间用细黑线分隔。API size参数使用 `1536x1024`，在提示词中明确要求21:9超宽比例构图。禁止输出竖版单张或正方形。
 4. **必须生成线稿**：黑色墨水线稿，白色纸面，无上色，clean manga line drawing。分工上：人设图承担色彩/五官锚定，分镜承担动作/构图/POV/空间关系锚定，两张一起喂给 Seedance。
 5. 提示词要求：
    - 保持角色外貌和画风不变
@@ -264,8 +272,7 @@
    - **同场景内空间构图不能跳轴**：门/家具/角色位置在所有 strip 中固定在画面同一侧（例：门始终在右侧，角色始终从左侧接近），禁止镜像翻转
    - 禁止夸张瞪眼等 AI 味表情
    - **第一人称 POV 严格执行**：绝不显示男主的脸/身体，仅允许男主的手从画面下方伸入
-6. 输出到项目目录：`角色名_分镜_场景X.png`（不建子文件夹）
-7. 完成后回到 Phase 3 参考图组织，把生成的分镜复制为 `角色名_场景X_图2_分镜.png`
+6. 输出到项目目录：`角色名_分镜_场景X.png`（不建子文件夹），同时复制一份为 `角色名_场景X_图2_分镜.png` 作为 Seedance 参考图
 
 ### 附加：DeepWhite双语图片提示词
 
@@ -279,6 +286,7 @@
 ### 产出规范
 
 每次交付标配一条5-6秒 CTA 文案：
+- **每版CTA必须包含 MiraiMind 产品名**，禁止遗漏
 - **前半句**：剧情钩子（概括本条素材的核心 drama）
 - **后半句**：必须包含 MiraiMind 多角色/多故事卖点，列举**至少3种代表性角色属性**（如병娇/傲娇/御姐/千金/黑道女等），突出"{profile.language} 数量规模词"（如韩语"수백 명의 그녀"）。禁止只写产品名不写卖点。
 - 自动输出 4-5 版备选，`{profile.language}` + 中文对照

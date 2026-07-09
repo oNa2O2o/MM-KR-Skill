@@ -1,5 +1,5 @@
 {
-  "version": "2.3.0",
-  "updated": "2026-07-08",
-  "changelog": "v2.3.0 一致性重构：(1) 交换Phase 3&4编号，Phase 3=Seedance提示词、Phase 4=分镜图，编号即执行顺序；(2) 删除固定规则区，所有规则就近归位到对应Phase，避免维护漂移；(3) 激活character_preferences字段，Phase 0档案摘要展示+Phase 2人设图提示词模板自动注入；(4) 选项字数改为语义化描述'2-4词一眼扫完'；(5) Phase 7新增规则归位表，Phase 7复盘时按类型归位到Phase内，禁止重复添加；(6) profile-template.json 4个region预设全部补齐character_preferences默认值。"
+  "version": "2.4.0",
+  "updated": "2026-07-09",
+  "changelog": "v2.4.0 流程矛盾修复+复盘规则固化：(1) 参考图引用统一为@image1/@image2，禁止其他格式；(2) 图片分辨率拆分：人设图1536×1536、分镜21:9超宽1536×1024；(3) Seedance版本编号修正：默认=版本A HuggingField，可选=B/C；(4) 去掉Phase 4→3回填步骤，分镜生成时直接复制图2；(5) Phase 1改为默认输出版本A，用户要求时加版本B；(6) api2img尺寸表同步更新；(7) CTA必须包含MiraiMind产品名提到独立行加粗；(8) 台词一句一个信息点；(9) 区分台词层级（氛围/角色台词）；(10) 选项必须围绕当幕核心冲突物/道具；(11) 选项问题必须即时画面描述；(12) 更新脚本Windows兼容（TEMP替代/tmp+mktemp）。"
 }
