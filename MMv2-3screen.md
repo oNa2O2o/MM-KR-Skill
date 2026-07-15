@@ -54,20 +54,30 @@
    fi
    rm -rf "$BACKUP_DIR" "$EXTRACT_DIR" "$TMPDIR_WIN/mmv2-update.tar.gz"
    ```
-   注意：更新不会覆盖用户档案（`~/.mmv2-3screen/profile.json`），用户个性化数据安全。
+   注意：更新不会覆盖用户档案（`~/.mmv2-3screen/profile-*.json`），用户个性化数据安全。
 
 ### Step 1：加载用户档案
 
-检测 `~/.mmv2-3screen/profile.json` 是否存在：
+扫描 `~/.mmv2-3screen/` 目录下所有 `profile-*.json` 文件：
 
-**已存在** → 读取并展示摘要：
+**找到多个档案** → 列出所有可用档案供用户选择：
 ```
-[用户档案] 设计师：{designer} | 地区：{region} | 语言：{language} | 画风：{art_style} | 方向：{content_direction}
+[用户档案] 检测到以下档案：
+  1. KR — 设计师：{designer} | 画风：{art_style} | 案例：{cases.length}个
+  2. EN — 设计师：{designer} | 画风：{art_style} | 案例：{cases.length}个
+  ...
+请选择本次使用的档案（输入编号或地区代码）：
+```
+用户选择后加载对应 `profile-{REGION}.json`，展示完整摘要：
+```
+[已激活] 设计师：{designer} | 地区：{region} | 语言：{language} | 画风：{art_style} | 方向：{content_direction}
 角色偏好：发色={character_preferences.hair_color} | 体型={character_preferences.body_proportion} | 服装={character_preferences.outfit_color}
 已有案例：{cases.length}个
 ```
 
-**不存在** → 启动首次配置引导：
+**只找到一个档案** → 直接加载并展示摘要，不询问。
+
+**没有档案** → 启动首次配置引导：
 
 ```
 欢迎使用 MMv2-3screen！首次使用需要配置你的工作档案。
@@ -86,8 +96,13 @@
 用户回答后：
 1. 从 `MMv2-3screen-参考/profile-template.json` 的 `presets` 读取对应地区预设（含 `character_preferences`）
 2. 合并用户自定义字段
-3. 写入 `~/.mmv2-3screen/profile.json`
+3. 写入 `~/.mmv2-3screen/profile-{REGION}.json`（按地区代码命名，不写入 `profile.json`）
 4. 展示完整档案让用户确认
+
+**档案文件命名规则**：所有档案统一使用 `profile-{REGION}.json` 格式（如 `profile-KR.json`、`profile-EN.json`）。旧的 `profile.json` 不再使用，首次检测到时自动迁移为 `profile-{region}.json`。
+
+**用户说"修改档案"** → 列出所有档案，用户选择要修改的档案后进入编辑流程。
+**用户说"添加档案"** → 启动首次配置引导，创建新地区档案。
 
 **后续所有Phase中，凡涉及语言、画风、美学参数、语速、UI标签、角色偏好等内容，均从用户档案读取，不使用硬编码值。**
 
@@ -158,6 +173,13 @@
 - **场景跨度必须拉大**：三幕不能都在同一栋楼/同一空间内，转场变化要明显（例：宿舍门口→舞台后台→男厕隔间）
 - **POV必须有明确身份设定**：写清楚POV是谁（idol/学生/警察/职员等），身份决定drama的动机与压力源，无身份则动机悬空
 - **POV默认选择最drama的选项推进下一幕**：写剧情时假设玩家每次都选最激烈的动作，让因果链闭合递进（例：上锁→她消失三天→捂嘴→她把捂嘴当"他还想碰我"证据→翻墙进厕所）
+
+**逐秒运镜脚本先出节拍表对齐**（适用于一镜到底 / 逐秒节拍 / 含明确运镜的脚本）
+- **动手前先出节拍表跟用户确认**，颗粒度到「拍号｜画面｜角色朝向·动作｜台词｜机位运镜」。对齐后再一次性产出脚本+Seedance提示词(Phase 3)+分镜(Phase 4)。
+  - **为什么**：逐秒脚本里每一拍的"动作/朝向/机位"强耦合，且同一信息会分散写在正文逐秒节拍、开头视角说明、结尾段、Seedance的EN/ZH双语、分镜提示词等多处。不先对齐就动手，会陷入"改一处漏三处"的返工——用户否一次改一次，反复打架。
+- **运镜语言（尤其结尾镜头：过肩/拉远/特写）是独立决策点，用 AskUserQuestion 让用户早期拍板**，不要自己默认一个、被否了再猜。
+  - **为什么**：结尾镜头是分叉点，猜错的代价是脚本+提示词+分镜三份产物一起返工；分镜图虽可逆，但每次重跑都要用户看图才发现方向错，成本转嫁给了用户。
+- **节拍表是单一事实源**：任何一拍改动，同步刷新所有文件里所有相关段落，禁止只改被点名的那一处。
 
 **台词与选项**
 - 台词必须直接可表演，不写内心戏、不写心理描写
@@ -363,14 +385,14 @@ YYYY年M月D日_题材·关键词/
    案例路径：[交付文件夹路径]
    案例备注：[简述题材、角色数、特殊手法]
    ```
-   用户确认 → 写入 `~/.mmv2-3screen/profile.json` 的 `cases` 数组
+   用户确认 → 写入当前激活的 `~/.mmv2-3screen/profile-{REGION}.json` 的 `cases` 数组
 
 ---
 
 ## 用户档案系统
 
 ### 档案位置
-`~/.mmv2-3screen/profile.json` — 存放在用户主目录，不随 Skill 更新被覆盖。
+`~/.mmv2-3screen/profile-{REGION}.json` — 存放在用户主目录，按地区代码命名（如 `profile-KR.json`、`profile-EN.json`），不随 Skill 更新被覆盖。每次启动 Skill 时从可用档案中选择激活。
 
 ### 档案结构
 ```json
